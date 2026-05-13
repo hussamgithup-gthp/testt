@@ -1,0 +1,203 @@
+import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { GraduationCap, Mail, Lock, ArrowRight } from "lucide-react";
+import { authService } from "../services/authService";
+
+export default function LoginPage() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      await authService.login(email, password);
+      navigate("/dashboard");
+    } catch (err: any) {
+      setError(err.message || "Failed to login");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-academic-paper flex">
+      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:flex-none lg:w-[560px] lg:px-16 xl:px-24 border-r border-slate-200 bg-white shadow-lg shadow-slate-200/30">
+        <div className="mx-auto w-full max-w-sm lg:w-96">
+          <div
+            className="flex items-center gap-3 mb-10 cursor-pointer group"
+            onClick={() => navigate('/')}
+          >
+            <div className="w-10 h-10 bg-academic-navy rounded-xl flex items-center justify-center transition-transform group-hover:scale-105">
+              <GraduationCap className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-2xl font-serif font-bold text-academic-navy tracking-tight">
+              Smart Study
+            </span>
+          </div>
+
+          <div>
+            <h2 className="text-3xl font-serif font-bold text-academic-navy tracking-tight">
+              Institutional Access
+            </h2>
+            <p className="mt-2 mb-2 text-sm text-slate-500 font-medium uppercase tracking-wider">
+              Secure Scholar Authentication
+            </p>
+          </div>
+
+          <div className="mt-10">
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-xl border border-red-100 font-medium">
+                {error}
+              </div>
+            )}
+            
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2"
+                >
+                  Academic Email
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-slate-300" />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="block w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-academic-blue/5 focus:border-academic-blue transition-all"
+                    placeholder="scholar@university.edu"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2"
+                >
+                  Secret Key
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-slate-300" />
+                  </div>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="block w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-academic-blue/5 focus:border-academic-blue transition-all"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    id="remember-me"
+                    type="checkbox"
+                    className="h-4 w-4 text-academic-navy focus:ring-academic-navy border-slate-300 rounded cursor-pointer"
+                  />
+                  <label
+                    htmlFor="remember-me"
+                    className="ml-2 block text-sm text-slate-500 font-medium cursor-pointer"
+                  >
+                    Stay authenticated
+                  </label>
+                </div>
+
+                <div className="text-sm">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/reset-password')}
+                    className="font-bold text-academic-blue hover:text-academic-navy transition-colors bg-transparent border-none p-0 cursor-pointer"
+                  >
+                    Reset Credentials
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex justify-center items-center gap-2 py-4 px-6 border border-transparent rounded-2xl shadow-xl text-lg font-bold text-white bg-academic-navy hover:bg-academic-blue transition-all hover:shadow-academic-navy/30 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Authenticating..." : "Enter Portal"}
+                  {!loading && <ArrowRight className="w-5 h-5" />}
+                </button>
+              </div>
+            </form>
+
+            <p className="mt-10 text-center text-sm text-slate-500 font-medium">
+              New Research Applicant?{" "}
+              <button
+                onClick={() => navigate('/register')}
+                className="font-bold text-academic-blue hover:text-academic-navy transition-colors bg-transparent border-none p-0 cursor-pointer"
+              >
+                Apply for Access
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="hidden lg:block relative w-0 flex-1 bg-academic-navy overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-academic-navy to-academic-blue opacity-95" />
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1541339907198-e08759dfc3ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center mix-blend-overlay opacity-30" />
+
+        <div className="absolute inset-0 flex flex-col justify-center px-16 xl:px-24 gap-8">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[2rem] max-w-xl shadow-2xl">
+            <div className="flex gap-1 mb-6">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <div
+                  key={star}
+                  className="w-2 h-2 rounded-full bg-academic-gold/60"
+                ></div>
+              ))}
+            </div>
+            <blockquote className="text-2xl font-serif font-light text-white leading-relaxed mb-8 italic">
+              "The precision and fidelity of the research synthesis provided by
+              this portal is unparalleled. It has become an essential component
+              of my doctoral studies."
+            </blockquote>
+            <div className="flex items-center gap-5">
+              <div className="w-14 h-14 rounded-2xl bg-academic-gold/20 border border-academic-gold/30 flex items-center justify-center text-academic-gold font-bold text-xl uppercase">
+                EM
+              </div>
+              <div>
+                <div className="text-white font-bold text-lg">
+                  Dr. Elena Moretti
+                </div>
+                <div className="text-slate-400 text-sm font-medium tracking-wide">
+                  University Research Fellow
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
